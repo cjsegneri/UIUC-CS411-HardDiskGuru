@@ -20,6 +20,7 @@ def home():
         disk_model = db.Table('DiskModel', metadata, autoload=True, autoload_with=engine)
         query = db.select([disk_model]).where(disk_model.columns.ManufacturerID == form.manufacturer_name.data).order_by(db.desc(disk_model.columns.CapacityBytes)).limit(3)
         result_set = connection.execute(query).fetchall()
+        return redirect(url_for('home'))
     return render_template('home.html', title = 'Home', form = form, result_set = result_set)
 
 @app.route('/about')
