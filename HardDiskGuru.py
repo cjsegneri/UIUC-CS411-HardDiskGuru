@@ -1,80 +1,29 @@
 from flask import Flask, escape, request, render_template, url_for, flash, redirect
-from flask_sqlalchemy import SQLAlchemy
-from forms import RegistrationForm, LoginForm
+#from flask_sqlalchemy import SQLAlchemy
+import sqlalchemy as db
+from forms import RegistrationForm, LoginForm, QueryManufacturerHardDisksForm
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'ecef3b8e7d47ea8a26b098bc534393dd'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://ss117_hard_disk_guru_web:DatabasePassword@localhost/ss117_harddrive'
-#db = SQLAlchemy(app)
 
-
-
-# # coding: utf-8
-# from sqlalchemy import Column, Date, ForeignKey, Index, String, Table
-# from sqlalchemy.dialects.mysql import BIGINT, INTEGER, VARCHAR
-# from sqlalchemy.orm import relationship
-# from sqlalchemy.ext.declarative import declarative_base
-
-# Base = declarative_base()
-# metadata = Base.metadata
-
-
-# class DiskManufacturer(Base):
-#     __tablename__ = 'DiskManufacturer'
-
-#     ManufacturerID = Column(VARCHAR(32), primary_key=True)
-#     ManufacturerName = Column(VARCHAR(255), nullable=False)
-
-
-# class User(Base):
-#     __tablename__ = 'User'
-
-#     UserID = Column(INTEGER(11), primary_key=True)
-#     Email = Column(String(256), nullable=False)
-#     Password = Column(String(32), nullable=False, comment='MD5 hash')
-
-
-# class DiskModel(Base):
-#     __tablename__ = 'DiskModel'
-
-#     DiskModelID = Column(VARCHAR(35), primary_key=True)
-#     ManufacturerID = Column(ForeignKey('DiskManufacturer.ManufacturerID'), index=True)
-#     CapacityBytes = Column(BIGINT(14))
-
-#     DiskManufacturer = relationship('DiskManufacturer')
-
-
-# t_DiskDailyLog = Table(
-#     'DiskDailyLog', metadata,
-#     Column('date', Date, nullable=False),
-#     Column('serial_number', String(32), nullable=False),
-#     Column('model', ForeignKey('DiskModel.DiskModelID'), index=True),
-#     Column('capacity_bytes', BIGINT(14)),
-#     Column('failure', INTEGER(1)),
-#     Index('UK_Date_Serial', 'date', 'serial_number', unique=True)
-# )
-
-
-# t_UserDisk = Table(
-#     'UserDisk', metadata,
-#     Column('UserID', ForeignKey('User.UserID'), nullable=False),
-#     Column('DiskModellD', ForeignKey('DiskModel.DiskModelID'), index=True),
-#     Column('SerialNumber', String(32), nullable=False),
-#     Column('ManufactureDate', Date),
-#     Index('UK_User_SerialNum', 'UserID', 'SerialNumber', unique=True)
-# )
-
+engine = db.create_engine('mysql+pymysql://ss117_hard_disk_guru_web:DatabasePassword@localhost/ss117_harddrive')
+connection = engine.connect()
+metadata = db.MetaData()
 
 
 @app.route('/')
-@app.route('/home')
+@app.route('/home', methods=['GET', 'POST'])
 def home():
-    #name = request.args.get("name", "Page")
-    return render_template('home.html', title = 'Home')
+    form = QueryManufacturerHardDisksForm()
+    result_set = ['hello', 'world']
+    if form.validate_on_submit():
+        disk_model = db.Table('DiskModel', metadata, autoload=True, autoload_with=engine)
+        query = db.select([disk_model]).where(disk_model.columns.ManufacturerID == form.manufacturer_name.data).order_by(db.desc(disk_model.columns.CapacityBytes)).limit(3)
+        result_set = connection.execute(query).fetchall()
+    return render_template('home.html', title = 'Home', form = form, result_set = result_set)
 
 @app.route('/about')
 def about():
-    #name = request.args.get("name", "Page")
     return render_template('about.html')
 
 @app.route('/register', methods=['GET', 'POST'])
