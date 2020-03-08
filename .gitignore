@@ -3,3 +3,7 @@ env/
 tmp/
 public/
 passenger_wsgi.py
+
+.vscode/
+
+__pycache__/
