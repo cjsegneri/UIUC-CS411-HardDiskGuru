@@ -1,14 +1,24 @@
 from flask import Flask, escape, request, render_template, url_for, flash, redirect
-#from flask_sqlalchemy import SQLAlchemy
-import sqlalchemy as db
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.automap import automap_base
 from forms import RegistrationForm, LoginForm, QueryManufacturerHardDisksForm
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'ecef3b8e7d47ea8a26b098bc534393dd'
 
-engine = db.create_engine('mysql+pymysql://ss117_hard_disk_guru_web:DatabasePassword@localhost/ss117_harddrive')
-connection = engine.connect()
-metadata = db.MetaData()
+# connect to the database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://ss117_hard_disk_guru_web:DatabasePassword@localhost/ss117_harddrive'
+db = SQLAlchemy(app)
+# automap database tables
+Base = automap_base()
+Base.prepare(db.engine, reflect=True)
+# DiskDailyLog = Base.classes.DiskDailyLog
+# DiskManufacturer = Base.classes.DiskManufacturer
+DiskModel = Base.classes.diskmodel
+# User = Base.classes.User
+# UserDisk = Base.classes.UserDisk
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -17,9 +27,9 @@ def home():
     form = QueryManufacturerHardDisksForm()
     result_set = []
     if form.manufacturer_name.data != None:
-        disk_model = db.Table('DiskModel', metadata, autoload=True, autoload_with=engine)
-        query = db.select([disk_model]).where(disk_model.columns.ManufacturerID == form.manufacturer_name.data).order_by(db.desc(disk_model.columns.CapacityBytes)).limit(3)
-        result_set = connection.execute(query).fetchall()
+        results = db.session.query(DiskModel).filter(DiskModel.ManufacturerID == form.manufacturer_name.data).limit(3)
+        for r in results:
+            result_set.append([r.DiskModelID,r.ManufacturerID,r.CapacityBytes])
     return render_template('home.html', title = 'Home', form = form, result_set = result_set)
 
 @app.route('/about')
