@@ -1,8 +1,7 @@
 from flask import escape, request, render_template, url_for, flash, redirect
-from HardDiskGuru import app
+from HardDiskGuru import app, db, bcrypt
 from HardDiskGuru.forms import RegistrationForm, LoginForm, QueryManufacturerHardDisksForm
 from HardDiskGuru.models import DiskManufacturer, DiskModel, User
-from HardDiskGuru import db
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -10,10 +9,10 @@ from HardDiskGuru import db
 def home():
     form = QueryManufacturerHardDisksForm()
     result_set = []
-    #if form.manufacturer_name.data != None:
-        #results = db.session.query(DiskModel).filter(DiskModel.ManufacturerID == form.manufacturer_name.data).limit(3)
-        #for r in results:
-            #result_set.append([r.DiskModelID,r.ManufacturerID,r.CapacityBytes])
+    if form.manufacturer_name.data != None:
+        results = db.session.query(DiskModel).filter(DiskModel.ManufacturerID == form.manufacturer_name.data).limit(3)
+        for r in results:
+            result_set.append([r.DiskModelID,r.ManufacturerID,r.CapacityBytes])
     return render_template('home.html', title = 'Home', form = form, result_set = result_set)
 
 @app.route('/about')
@@ -24,8 +23,12 @@ def about():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(Email=form.email.data, Password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Your account has been created! You are now able to log in.', 'success')
+        return redirect(url_for('login'))
     return render_template('register.html', title = 'Register', form = form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -36,5 +39,5 @@ def login():
             flash('You have been logged in!', 'success')
             return redirect(url_for('home'))
         else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
+            flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title = 'Login', form = form)
