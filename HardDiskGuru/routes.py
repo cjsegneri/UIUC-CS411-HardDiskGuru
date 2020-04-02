@@ -1,6 +1,6 @@
 from flask import escape, request, render_template, url_for, flash, redirect
 from HardDiskGuru import app, db, bcrypt
-from HardDiskGuru.forms import RegistrationForm, LoginForm, QueryManufacturerHardDisksForm
+from HardDiskGuru.forms import RegistrationForm, LoginForm #, QueryManufacturerHardDisksForm
 from HardDiskGuru.models import DiskManufacturer, DiskModel, User
 from flask_login import login_user, logout_user, current_user, login_required
 
@@ -8,13 +8,13 @@ from flask_login import login_user, logout_user, current_user, login_required
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    form = QueryManufacturerHardDisksForm()
-    result_set = []
-    if form.manufacturer_name.data != None:
-        results = db.session.query(DiskModel).filter(DiskModel.ManufacturerID == form.manufacturer_name.data).limit(3)
-        for r in results:
-            result_set.append([r.DiskModelID,r.ManufacturerID,r.CapacityBytes])
-    return render_template('home.html', title = 'Home', form = form, result_set = result_set)
+    #form = QueryManufacturerHardDisksForm()
+    #result_set = []
+    # if form.manufacturer_name.data != None:
+    #     results = db.session.query(DiskModel).filter(DiskModel.ManufacturerID == form.manufacturer_name.data).limit(3)
+    #     for r in results:
+    #         result_set.append([r.DiskModelID,r.ManufacturerID,r.CapacityBytes])
+    return render_template('home.html', title = 'Home') #, form = form, result_set = result_set)
 
 @app.route('/about')
 def about():

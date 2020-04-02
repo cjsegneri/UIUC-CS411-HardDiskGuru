@@ -26,7 +26,7 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
-class QueryManufacturerHardDisksForm(FlaskForm):
-    manufacturer_name = StringField('Manufacturer Name',
-        validators=[DataRequired()])
-    submit = SubmitField('Query')
+# class QueryManufacturerHardDisksForm(FlaskForm):
+#     manufacturer_name = StringField('Manufacturer Name',
+#         validators=[DataRequired()])
+#     submit = SubmitField('Query')
