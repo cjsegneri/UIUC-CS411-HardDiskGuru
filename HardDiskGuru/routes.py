@@ -1,7 +1,7 @@
 from flask import escape, request, render_template, url_for, flash, redirect
 from HardDiskGuru import app, db, bcrypt
-from HardDiskGuru.forms import RegistrationForm, LoginForm #, QueryManufacturerHardDisksForm
-from HardDiskGuru.models import DiskManufacturer, DiskModel, User
+from HardDiskGuru.forms import RegistrationForm, LoginForm, EnterDiskModelForm
+from HardDiskGuru.models import DiskManufacturer, DiskModel, User, UserDisk
 from flask_login import login_user, logout_user, current_user, login_required
 
 
@@ -58,3 +58,17 @@ def logout():
 @login_required
 def account():
     return render_template('account.html', title = 'Account')
+
+@app.route("/enterharddisks", methods = ['GET', 'POST'])
+@login_required
+def enter_hard_disks():
+    form = EnterDiskModelForm()
+    if form.validate_on_submit():
+        userdisk = UserDisk(userid=current_user.id,
+            diskmodelid=form.disk_model.data,
+            serialnumber=form.serial_number.data,
+            manufacturedate=form.manufacture_date.data)
+        db.session.add(userdisk)
+        db.session.commit()
+        flash('Your hard disk has been added.', 'success')
+    return render_template('enter_hard_disks.html', title = 'Enter Hard Disks', form = form)

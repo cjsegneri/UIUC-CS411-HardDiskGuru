@@ -16,9 +16,26 @@ class User(Base, UserMixin):
     email = db.Column('Email', db.String)
     password = db.Column('Password', db.String)
 
+class DiskManufacturer(Base, UserMixin):
+    __tablename__ = 'diskmanufacturer'
+
+    manufacturerid = db.Column('ManufacturerID', db.String, primary_key = True)
+
+class DiskModel(Base, UserMixin):
+    __tablename__ = 'diskmodel'
+
+    diskmodelid = db.Column('DiskModelID', db.String, primary_key=True)
+    manufacturerid = db.Column('ManufacturerID', db.String)
+    capacitybytes = db.Column('CapacityBytes', db.BigInteger)
+    totaldiskcount = db.Column('TotalDiskCount', db.Integer)
+    failurecount = db.Column('FailureCount', db.Integer)
+
+class UserDisk(Base, UserMixin):
+    __tablename__ = 'userdisk'
+
+    userid = db.Column('UserID', db.Integer, primary_key=True)
+    diskmodelid = db.Column('DiskModellD', db.String)
+    serialnumber = db.Column('SerialNumber', db.String, primary_key=True)
+    manufacturedate = db.Column('ManufactureDate', db.DateTime)
+
 Base.prepare(db.engine, reflect=True)
-# DiskDailyLog = Base.classes.diskdailylog
-DiskManufacturer = Base.classes.diskmanufacturer
-DiskModel = Base.classes.diskmodel
-#User = Base.classes.user
-# UserDisk = Base.classes.userdisk
