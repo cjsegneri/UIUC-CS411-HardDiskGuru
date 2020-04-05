@@ -72,3 +72,9 @@ def enter_hard_disks():
         db.session.commit()
         flash('Your hard disk has been added.', 'success')
     return render_template('enter_hard_disks.html', title = 'Enter Hard Disks', form = form)
+
+@app.route("/myharddisks", methods = ['GET', 'POST'])
+@login_required
+def my_hard_disks():
+    my_user_disks = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id).all()
+    return render_template('my_hard_disks.html', title = 'My Hard Disks', my_user_disks = my_user_disks)

@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Disk Model</th>
+            <th scope="col">Serial Number</th>
+            <th scope="col">Manufacture Date</th>
+            <th scope="col">Reliability Score</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for i in range(my_user_disks|length) %}
+                <tr>
+                    <th scope="row">{{ i+1 }}</th>
+                    <td>{{ my_user_disks[i].diskmodelid }}</td>
+                    <td>{{ my_user_disks[i].serialnumber }}</td>
+                    <td>{{ my_user_disks[i].manufacturedate }}</td>
+                    <td>10</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}
