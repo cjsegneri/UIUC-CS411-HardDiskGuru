@@ -4,8 +4,8 @@
         <thead>
         <tr>
             <th scope="col">#</th>
-            <th scope="col">Disk Model</th>
             <th scope="col">Serial Number</th>
+            <th scope="col">Disk Model</th>
             <th scope="col">Manufacture Date</th>
             <th scope="col">Reliability Score</th>
         </tr>
@@ -14,10 +14,33 @@
             {% for i in range(my_user_disks|length) %}
                 <tr>
                     <th scope="row">{{ i+1 }}</th>
-                    <td>{{ my_user_disks[i].diskmodelid }}</td>
                     <td>{{ my_user_disks[i].serialnumber }}</td>
+                    <td>{{ my_user_disks[i].diskmodelid }}</td>
                     <td>{{ my_user_disks[i].manufacturedate }}</td>
                     <td>10</td>
+                    <td><a class="btn btn-outline-secondary" href="{{ url_for('update_hard_disk', serial_number=my_user_disks[i].serialnumber) }}" role="button">Update</a></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                        <!-- Modal -->
+                        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Delete Hard Disk?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <form action = "{{ url_for('delete_hard_disk', serial_number=my_user_disks[i].serialnumber) }}" method="POST">
+                                    <input class="btn btn-danger" type="submit" value="Delete">
+                                </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

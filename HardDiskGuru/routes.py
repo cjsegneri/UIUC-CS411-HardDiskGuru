@@ -71,10 +71,37 @@ def enter_hard_disks():
         db.session.add(userdisk)
         db.session.commit()
         flash('Your hard disk has been added.', 'success')
-    return render_template('enter_hard_disks.html', title = 'Enter Hard Disks', form = form)
+    return render_template('enter_hard_disks.html', title = 'Enter Hard Disk', form = form)
 
 @app.route("/myharddisks", methods = ['GET', 'POST'])
 @login_required
 def my_hard_disks():
     my_user_disks = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id).all()
     return render_template('my_hard_disks.html', title = 'My Hard Disks', my_user_disks = my_user_disks)
+
+@app.route("/update/<serial_number>", methods=['GET', 'POST'])
+@login_required
+def update_hard_disk(serial_number):
+    my_user_disk = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id, UserDisk.serialnumber == serial_number).first()
+    form = EnterDiskModelForm()
+    if form.validate_on_submit():
+        my_user_disk.serialnumber = form.serial_number.data
+        my_user_disk.diskmodelid = form.disk_model.data
+        my_user_disk.manufacturedate = form.manufacture_date.data
+        db.session.commit()
+        flash('Your post has been updated!', 'success')
+        return redirect(url_for('my_hard_disks'))
+    elif request.method == 'GET':
+        form.serial_number.data = my_user_disk.serialnumber
+        form.disk_model.data = my_user_disk.diskmodelid
+        form.manufacture_date.data = my_user_disk.manufacturedate
+    return render_template('enter_hard_disks.html', title = "Update Hard Disk", form = form)
+
+@app.route("/delete/<serial_number>", methods=['POST'])
+@login_required
+def delete_hard_disk(serial_number):
+    my_user_disk = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id, UserDisk.serialnumber == serial_number).first()
+    db.session.delete(my_user_disk)
+    db.session.commit()
+    flash('Your post has been deleted!', 'success')
+    return redirect(url_for('my_hard_disks'))
