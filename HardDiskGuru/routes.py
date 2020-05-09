@@ -101,8 +101,26 @@ def enter_hard_disks():
 @app.route("/myharddisks", methods = ['GET', 'POST'])
 @login_required
 def my_hard_disks():
-    my_user_disks = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id).all()
-    return render_template('my_hard_disks.html', title = 'My Hard Disks', my_user_disks = my_user_disks)
+    #my_user_disks = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id).all()
+    #my_user_disks = db.session.query(UserDisk).join(DiskModel, UserDisk.diskmodelid == DiskModel.diskmodelid).filter(UserDisk.userid == current_user.id).all()
+    results = db.engine.execute(text("""
+        SELECT
+            UD.DiskModellD,
+            UD.SerialNumber,
+            UD.ManufactureDate,
+            DM.ManufacturerID,
+            DM.CapacityBytes,
+            DM.TotalDiskCount,
+            DM.FailureCount,
+            DM.ReliabilityScore,
+            DM.Price,
+            DM.URL
+        FROM ss117_harddrive.userdisk UD
+        JOIN ss117_harddrive.diskmodel DM ON DM.DiskModelID = UD.DiskModellD
+        WHERE UD.UserID = """+str(current_user.id)+""";
+    """))
+    results = [row for row in results]
+    return render_template('my_hard_disks.html', title = 'My Hard Disks', results = results)
 
 @app.route("/update/<serial_number>", methods=['GET', 'POST'])
 @login_required

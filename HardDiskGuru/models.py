@@ -29,6 +29,9 @@ class DiskModel(Base, UserMixin):
     capacitybytes = db.Column('CapacityBytes', db.BigInteger)
     totaldiskcount = db.Column('TotalDiskCount', db.Integer)
     failurecount = db.Column('FailureCount', db.Integer)
+    reliabilityscore = db.Column('ReliabilityScore', db.Float)
+    price = db.Column('Price', db.Float)
+    url = db.Column('URL', db.String)
 
 class UserDisk(Base, UserMixin):
     __tablename__ = 'userdisk'
