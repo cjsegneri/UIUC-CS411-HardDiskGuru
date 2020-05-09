@@ -7,7 +7,7 @@
 
     <select id="DiskType" name="DiskType" onchange="updateChartType()">
         {% for disk in disks|unique %}
-            <option value="HGST HMS5C4040BLE641">{{ disk }}</option>
+            <option value="{{ disk }}">{{ disk }}</option>
         {% endfor %}
     </select>
 
