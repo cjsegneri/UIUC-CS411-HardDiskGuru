@@ -1,4 +1,6 @@
 from flask import escape, request, render_template, url_for, flash, redirect
+from sqlalchemy import text
+import json
 from HardDiskGuru import app, db, bcrypt
 from HardDiskGuru.forms import RegistrationForm, LoginForm, EnterDiskModelForm
 from HardDiskGuru.models import DiskManufacturer, DiskModel, User, UserDisk
@@ -8,13 +10,36 @@ from flask_login import login_user, logout_user, current_user, login_required
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    #form = QueryManufacturerHardDisksForm()
-    #result_set = []
-    # if form.manufacturer_name.data != None:
-    #     results = db.session.query(DiskModel).filter(DiskModel.ManufacturerID == form.manufacturer_name.data).limit(3)
-    #     for r in results:
-    #         result_set.append([r.DiskModelID,r.ManufacturerID,r.CapacityBytes])
-    return render_template('home.html', title = 'Home') #, form = form, result_set = result_set)
+    results = db.engine.execute(text("""
+        (SELECT
+            DiskModelID,
+            ReliabilityScore
+        FROM ss117_harddrive.diskmodel
+        WHERE ReliabilityScore IS NOT NULL
+        ORDER BY ReliabilityScore DESC
+        LIMIT 5)
+        UNION
+        (SELECT
+            DiskModelID,
+            ReliabilityScore
+        FROM ss117_harddrive.diskmodel
+        WHERE ReliabilityScore IS NOT NULL
+        ORDER BY ReliabilityScore ASC
+        LIMIT 5);
+    """))
+    results = [row for row in results]
+    manufacturer_counts = db.engine.execute(text("""
+        SELECT
+            DMR.ManufacturerID,
+            SUM(DDS.TotalDiskCount) AS NumberOfTests,
+            SUM(DDS.TotalDiskCount) - SUM(DDS.FailureCount) AS FailureCount
+        FROM ss117_harddrive.diskmanufacturer DMR
+            JOIN ss117_harddrive.diskmodel DML ON DML.ManufacturerID = DMR.ManufacturerID
+            JOIN ss117_harddrive.diskdailystats DDS ON DDS.DiskModelID = DML.DiskModelID
+        GROUP BY DMR.ManufacturerID;
+    """))
+    manufacturer_counts = [row for row in manufacturer_counts]
+    return render_template('home.html', title = 'Home', results = results, manufacturer_counts = manufacturer_counts) #, form = form, result_set = result_set)
 
 @app.route('/about')
 def about():
@@ -105,3 +130,26 @@ def delete_hard_disk(serial_number):
     db.session.commit()
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('my_hard_disks'))
+
+@app.route("/harddiskanalysis", methods = ['GET', 'POST'])
+@login_required
+def hard_disk_analysis():
+    results = db.engine.execute(text("""
+        SELECT
+            UD.DiskModellD,
+            DATE_FORMAT(DDS.Date, '%Y %m') AS YearMonth,
+            SUM(DDS.FailureCount)
+        FROM ss117_harddrive.userdisk UD
+        JOIN ss117_harddrive.diskdailystats DDS
+        WHERE UD.UserID = """+str(current_user.id)+"""
+        GROUP BY UD.DiskModellD, DATE_FORMAT(DDS.Date, '%Y %m')
+        ORDER BY UD.DiskModellD, YearMonth;
+    """))
+    results = [row for row in results]
+    disks = [str(row[0]) for row in results]
+    year_month = [str(row[1]) for row in results]
+    failures = [str(row[2]) for row in results]
+    return render_template('hard_disk_analysis.html', title = 'Hard Disk Analysis', results = results,
+        disks = disks,
+        year_month = year_month,
+        failures = failures)

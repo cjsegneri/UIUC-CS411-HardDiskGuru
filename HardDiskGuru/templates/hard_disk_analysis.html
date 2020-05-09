@@ -1,0 +1,84 @@
+
+{% extends "layout.html" %}
+{% block content %}
+
+    <h1>Hard Disk Analysis</h1><br>
+    <p>View analytics on your hard disks.</p>
+
+    <select id="DiskType" name="DiskType" onchange="updateChartType()">
+        {% for disk in disks|unique %}
+            <option value="HGST HMS5C4040BLE641">{{ disk }}</option>
+        {% endfor %}
+    </select>
+
+    <canvas id="line-chart" width="1000" height="400"></canvas>
+    <script>
+        var all_disks = {{ disks|safe }};
+        var all_year_month = {{ year_month|safe }};
+        var all_failures = {{ failures|safe }};
+
+        var year_month = [];
+        var failures = [];
+        for (var i = 0; i < all_disks.length; i++) {
+            if (all_disks[i] == document.getElementById("DiskType").value) {
+                year_month.push(all_year_month[i]);
+                failures.push(all_failures[i]);
+            }
+        }
+        var myChart = new Chart(document.getElementById("line-chart"), {
+            type: 'line',
+            data: {
+                labels: year_month,
+                datasets: [{
+                    data: failures,
+                    borderColor: "#3e95cd"
+                }
+                ]
+            },
+            options: {
+                responsive: false,
+                legend: {
+                    display: false
+                },
+                title: {
+                display: true,
+                text: "\"" + document.getElementById("DiskType").value + "\"" + " Failures Per Month",
+                }
+            }
+        });
+        
+        function updateChartType() {
+            myChart.destroy();
+            year_month = [];
+            failures = [];
+            for (var i = 0; i < all_disks.length; i++) {
+                if (all_disks[i] == document.getElementById("DiskType").value) {
+                    year_month.push(all_year_month[i]);
+                    failures.push(all_failures[i]);
+                }
+            }
+            myChart = new Chart(document.getElementById("line-chart"), {
+            type: 'line',
+            data: {
+                labels: year_month,
+                datasets: [{ 
+                    data: failures,
+                    borderColor: "#3e95cd"
+                }
+                ]
+            },
+            options: {
+                responsive: false,
+                legend: {
+                    display: false
+                },
+                title: {
+                display: true,
+                text: "\"" + document.getElementById("DiskType").value + "\"" + " Failures Per Month",
+                }
+            }
+        });
+        };
+    </script>
+
+{% endblock content %}
