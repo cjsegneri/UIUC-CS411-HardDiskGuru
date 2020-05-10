@@ -68,10 +68,11 @@
             var theader = `<table class="table table-bordered">
             <thead>
                 <tr>
-                    <th scope="col">Capacity</th>
+                    <th scope="col">Capacity (TB)</th>
+                    <th scope="col">Disk Count</th>
+                    <th scope="col">Total Capacity (TB)</th>
                     <th scope="col">Configuration Price</th>
                     <th scope="col">Configuration Score</th>
-                    <th scope="col">Disk Count</th>
                     <th scope="col">Manufacturer</th>
                     <th scope="col">Model</th>
                     <th scope="col">Model Price</th>
@@ -84,14 +85,15 @@
             for (var i=0; i<SortedOptions.length; i++) {
                 tbody += '<tr>';
                 tbody += '<td>' + SortedOptions[i]['Capacity'] + '</td>';
-                tbody += '<td>' + SortedOptions[i]['ConfigurationPrice'] + '</td>';
-                tbody += '<td>' + SortedOptions[i]['ConfigurationScore'] + '</td>';
                 tbody += '<td>' + SortedOptions[i]['DiskCount'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['Capacity'] * SortedOptions[i]["DiskCount"] + '</td>';
+                tbody += '<td>$' + SortedOptions[i]['ConfigurationPrice'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['ConfigurationScore'].toFixed(4) + '</td>';
                 tbody += '<td>' + SortedOptions[i]['Manufacturer'] + '</td>';
                 tbody += '<td>' + SortedOptions[i]['Model'] + '</td>';
-                tbody += '<td>' + SortedOptions[i]['ModelPrice'] + '</td>';
+                tbody += '<td>$' + SortedOptions[i]['ModelPrice'] + '</td>';
                 tbody += '<td>' + SortedOptions[i]['ModelScore'] + '</td>';
-                tbody += '<td>' + '<a class="btn btn-outline-warning" href="' + SortedOptions[i]['ModelScore']["URL"] + '" role="button">Shop</a></td>' + '</td>';
+                tbody += '<td>' + '<a class="btn btn-outline-warning" href="' + SortedOptions[i]["ModelURL"] + '" role="button">Shop</a></td>' + '</td>';
                 tbody += '</tr>';
             }
 
