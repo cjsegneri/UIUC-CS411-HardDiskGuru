@@ -14,7 +14,7 @@ def home():
         (SELECT
             DiskModelID,
             ReliabilityScore
-        FROM ss117_harddrive.diskmodel
+        FROM ss117_harddrive.DiskModel
         WHERE ReliabilityScore IS NOT NULL
         ORDER BY ReliabilityScore DESC
         LIMIT 5)
@@ -22,7 +22,7 @@ def home():
         (SELECT
             DiskModelID,
             ReliabilityScore
-        FROM ss117_harddrive.diskmodel
+        FROM ss117_harddrive.DiskModel
         WHERE ReliabilityScore IS NOT NULL
         ORDER BY ReliabilityScore ASC
         LIMIT 5);
@@ -32,7 +32,7 @@ def home():
         SELECT
             ManufacturerID,
             SUM(TotalDiskCount)
-        FROM ss117_harddrive.diskmodel
+        FROM ss117_harddrive.DiskModel
         GROUP BY ManufacturerID;
     """))
     manufacturer_counts = [row for row in manufacturer_counts]
@@ -110,8 +110,8 @@ def my_hard_disks():
             (DM.ReliabilityScore) - (DM.slope * (-DATEDIFF(UD.ManufactureDate, CURDATE()))) AS ReliabilityScore,
             DM.Price,
             DM.URL
-        FROM ss117_harddrive.userdisk UD
-        JOIN ss117_harddrive.diskmodel DM ON DM.DiskModelID = UD.DiskModellD
+        FROM ss117_harddrive.UserDisk UD
+        JOIN ss117_harddrive.DiskModel DM ON DM.DiskModelID = UD.DiskModellD
         WHERE UD.UserID = """+str(current_user.id)+""";
     """))
     results = [row for row in results]
@@ -153,16 +153,16 @@ def hard_disk_analysis():
             DATE_FORMAT(Date, '%Y %m') AS YearMonth,
             SUM(TotalDiskCount),
             SUM(FailureCount)
-        FROM ss117_harddrive.diskdailystats
+        FROM ss117_harddrive.DiskDailyStats
         WHERE DiskModelID IN (
             SELECT DiskModelID
-            FROM ss117_harddrive.diskdailystats
+            FROM ss117_harddrive.DiskDailyStats
             GROUP BY DiskModelID
             HAVING COUNT(DISTINCT DATE_FORMAT(Date, '%Y %m')) = 12
         )
         AND DiskModelID IN (
             SELECT DiskModelID
-            FROM ss117_harddrive.diskmodel
+            FROM ss117_harddrive.DiskModel
         )
         GROUP BY DiskModelID, DATE_FORMAT(Date, '%Y %m')
         ORDER BY DiskModelID, YearMonth;
@@ -177,7 +177,7 @@ def hard_disk_analysis():
             DiskModelID,
             SUM(TotalDiskCount),
             SUM(FailureCount)
-        FROM ss117_harddrive.diskmodel
+        FROM ss117_harddrive.DiskModel
         GROUP BY DiskModelID;
     """))
     results_pie = [row for row in results_pie]
@@ -205,7 +205,7 @@ def recommendations():
             ReliabilityScore,
             Price,
             URL
-        FROM ss117_harddrive.diskmodel;
+        FROM ss117_harddrive.DiskModel;
     """))
     results = [row for row in results]
     manufacturer = [str(row[0]) for row in results]

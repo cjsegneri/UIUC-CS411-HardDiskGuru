@@ -10,19 +10,19 @@ def load_user(user_id):
 Base = automap_base()
 
 class User(Base, UserMixin):
-    __tablename__ = 'user'
+    __tablename__ = 'User'
 
     id = db.Column('UserID', db.Integer, primary_key=True)
     email = db.Column('Email', db.String)
     password = db.Column('Password', db.String)
 
 class DiskManufacturer(Base, UserMixin):
-    __tablename__ = 'diskmanufacturer'
+    __tablename__ = 'DiskManufacturer'
 
     manufacturerid = db.Column('ManufacturerID', db.String, primary_key = True)
 
 class DiskModel(Base, UserMixin):
-    __tablename__ = 'diskmodel'
+    __tablename__ = 'DiskModel'
 
     diskmodelid = db.Column('DiskModelID', db.String, primary_key=True)
     manufacturerid = db.Column('ManufacturerID', db.String)
@@ -34,7 +34,7 @@ class DiskModel(Base, UserMixin):
     url = db.Column('URL', db.String)
 
 class UserDisk(Base, UserMixin):
-    __tablename__ = 'userdisk'
+    __tablename__ = 'UserDisk'
 
     userid = db.Column('UserID', db.Integer, primary_key=True)
     diskmodelid = db.Column('DiskModellD', db.String)
