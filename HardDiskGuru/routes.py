@@ -30,16 +30,13 @@ def home():
     results = [row for row in results]
     manufacturer_counts = db.engine.execute(text("""
         SELECT
-            DMR.ManufacturerID,
-            SUM(DDS.TotalDiskCount) AS NumberOfTests,
-            SUM(DDS.TotalDiskCount) - SUM(DDS.FailureCount) AS FailureCount
-        FROM ss117_harddrive.diskmanufacturer DMR
-            JOIN ss117_harddrive.diskmodel DML ON DML.ManufacturerID = DMR.ManufacturerID
-            JOIN ss117_harddrive.diskdailystats DDS ON DDS.DiskModelID = DML.DiskModelID
-        GROUP BY DMR.ManufacturerID;
+            ManufacturerID,
+            SUM(TotalDiskCount)
+        FROM ss117_harddrive.diskmodel
+        GROUP BY ManufacturerID;
     """))
     manufacturer_counts = [row for row in manufacturer_counts]
-    return render_template('home.html', title = 'Home', results = results, manufacturer_counts = manufacturer_counts) #, form = form, result_set = result_set)
+    return render_template('home.html', title = 'Home', results = results, manufacturer_counts = manufacturer_counts)
 
 @app.route('/about')
 def about():
@@ -101,8 +98,6 @@ def enter_hard_disks():
 @app.route("/myharddisks", methods = ['GET', 'POST'])
 @login_required
 def my_hard_disks():
-    #my_user_disks = db.session.query(UserDisk).filter(UserDisk.userid == current_user.id).all()
-    #my_user_disks = db.session.query(UserDisk).join(DiskModel, UserDisk.diskmodelid == DiskModel.diskmodelid).filter(UserDisk.userid == current_user.id).all()
     results = db.engine.execute(text("""
         SELECT
             UD.DiskModellD,
