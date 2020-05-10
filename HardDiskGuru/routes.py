@@ -158,7 +158,7 @@ def hard_disk_analysis():
             DATE_FORMAT(DDS.Date, '%Y %m') AS YearMonth,
             SUM(DDS.FailureCount)
         FROM ss117_harddrive.userdisk UD
-        JOIN ss117_harddrive.diskdailystats DDS
+        JOIN ss117_harddrive.diskdailystats DDS ON DDS.DiskModelID = UD.DiskModellD
         WHERE UD.UserID = """+str(current_user.id)+"""
         GROUP BY UD.DiskModellD, DATE_FORMAT(DDS.Date, '%Y %m')
         ORDER BY UD.DiskModellD, YearMonth;
@@ -167,7 +167,23 @@ def hard_disk_analysis():
     disks = [str(row[0]) for row in results]
     year_month = [str(row[1]) for row in results]
     failures = [str(row[2]) for row in results]
-    return render_template('hard_disk_analysis.html', title = 'Hard Disk Analysis', results = results,
+    results_pie = db.engine.execute(text("""
+        SELECT
+            UD.DiskModellD,
+            DM.TotalDiskCount,
+            DM.FailureCount
+        FROM ss117_harddrive.userdisk UD
+        JOIN ss117_harddrive.diskmodel DM ON DM.DiskModelID = UD.DiskModellD
+        WHERE UD.UserID = """+str(current_user.id)+""";
+    """))
+    results_pie = [row for row in results_pie]
+    disks_pie = [str(row[0]) for row in results_pie]
+    disk_count_pie = [str(row[1]) for row in results_pie]
+    failure_count_pie = [str(row[2]) for row in results_pie]
+    return render_template('hard_disk_analysis.html', title = 'Hard Disk Analysis',
         disks = disks,
         year_month = year_month,
-        failures = failures)
+        failures = failures,
+        disks_pie = disks_pie,
+        disk_count_pie = disk_count_pie,
+        failure_count_pie = failure_count_pie)

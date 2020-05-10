@@ -5,14 +5,17 @@
     <h1>Hard Disk Analysis</h1><br>
     <p>View analytics on your hard disks.</p>
 
-    <select id="DiskType" name="DiskType" onchange="updateChartType()">
+    <select id="DiskType" name="DiskType" onchange="updateLineChartType(); updatePieChartType();">
         {% for disk in disks|unique %}
             <option value="{{ disk }}">{{ disk }}</option>
         {% endfor %}
     </select>
 
     <canvas id="line-chart" width="1000" height="400"></canvas>
+    <canvas id="pie-chart" width="400" height="400"></canvas>
+
     <script>
+        ///// LINE CHART /////
         var all_disks = {{ disks|safe }};
         var all_year_month = {{ year_month|safe }};
         var all_failures = {{ failures|safe }};
@@ -25,7 +28,7 @@
                 failures.push(all_failures[i]);
             }
         }
-        var myChart = new Chart(document.getElementById("line-chart"), {
+        var myLineChart = new Chart(document.getElementById("line-chart"), {
             type: 'line',
             data: {
                 labels: year_month,
@@ -47,8 +50,8 @@
             }
         });
         
-        function updateChartType() {
-            myChart.destroy();
+        function updateLineChartType() {
+            myLineChart.destroy();
             year_month = [];
             failures = [];
             for (var i = 0; i < all_disks.length; i++) {
@@ -57,7 +60,7 @@
                     failures.push(all_failures[i]);
                 }
             }
-            myChart = new Chart(document.getElementById("line-chart"), {
+            myLineChart = new Chart(document.getElementById("line-chart"), {
             type: 'line',
             data: {
                 labels: year_month,
@@ -75,6 +78,69 @@
                 title: {
                 display: true,
                 text: "\"" + document.getElementById("DiskType").value + "\"" + " Failures Per Month",
+                }
+            }
+        });
+        };
+
+
+        ///// PIE CHART /////
+        var all_disks_pie = {{ disks_pie|safe }};
+        var all_disk_count_pie = {{ disk_count_pie|safe }};
+        var all_failure_count_pie = {{ failure_count_pie|safe }};
+
+        var disk_count_pie = [];
+        var failure_count_pie = [];
+        for (var i = 0; i < all_disks_pie.length; i++) {
+            if (all_disks_pie[i] == document.getElementById("DiskType").value) {
+                disk_count_pie.push(all_disk_count_pie[i]);
+                failure_count_pie.push(all_failure_count_pie[i]);
+            }
+        }
+        var myPieChart = new Chart(document.getElementById("pie-chart"), {
+            type: 'pie',
+            data: {
+            labels: ["Total Tests", "Failures"],
+            datasets: [{
+                label: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\"",
+                backgroundColor: ["#3e95cd", "#8e5ea2"],
+                data: [disk_count_pie[0], failure_count_pie[0]]
+            }]
+            },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\" - Percent Failures %" + (failure_count_pie[0] / disk_count_pie[0]).toFixed(2)
+                }
+            }
+        });
+
+        function updatePieChartType() {
+            myPieChart.destroy();
+            disk_count_pie = [];
+            failure_count_pie = [];
+            for (var i = 0; i < all_disks_pie.length; i++) {
+                if (all_disks_pie[i] == document.getElementById("DiskType").value) {
+                    disk_count_pie.push(all_disk_count_pie[i]);
+                    failure_count_pie.push(all_failure_count_pie[i]);
+                }
+            }
+            myPieChart = new Chart(document.getElementById("pie-chart"), {
+            type: 'pie',
+            data: {
+            labels: ["Total Tests", "Failures"],
+            datasets: [{
+                label: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\"",
+                backgroundColor: ["#3e95cd", "#8e5ea2"],
+                data: [disk_count_pie[0], failure_count_pie[0]]
+            }]
+            },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\" - Percent Failures %" + (failure_count_pie[0] / disk_count_pie[0]).toFixed(2)
                 }
             }
         });
