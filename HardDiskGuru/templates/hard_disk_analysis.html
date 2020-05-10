@@ -2,89 +2,48 @@
 {% extends "layout.html" %}
 {% block content %}
 
-    <h1>Hard Disk Analysis</h1><br>
-    <p>View analytics on your hard disks.</p>
+    <h1>Hard Disk Analytics</h1><br>
+    <p>View analytics on the hard disk models stored in HardDiskGuru's data set.</p>
 
-    <select id="DiskType" name="DiskType" onchange="updateLineChartType(); updatePieChartType();">
+    <br /><hr><br />
+    <p>Below are the failure rates of the disk models plotted over each month of testing. Select a specific hard disk model to filter the graph.</p>
+    <canvas id="line-chart" width="1000" height="600"></canvas>
+
+    <br /><hr><br />
+    <p>The pie chart below shows the total amount of tests and failures for each individual hard disk model. Select the model from the drop down list you would like to see displayed in the pie chart.</p>
+    <select id="DiskType" name="DiskType" onchange="updatePieChartType();">
         {% for disk in disks|unique %}
             <option value="{{ disk }}">{{ disk }}</option>
         {% endfor %}
     </select>
-
-    <canvas id="line-chart" width="1000" height="400"></canvas>
-    <canvas id="pie-chart" width="400" height="400"></canvas>
+    <canvas id="pie-chart" width="600" height="400"></canvas>
 
     <script>
-        ///// LINE CHART /////
-        var all_disks = {{ disks|safe }};
-        var all_year_month = {{ year_month|safe }};
-        var all_failures = {{ failures|safe }};
-
-        var year_month = [];
-        var failures = [];
-        for (var i = 0; i < all_disks.length; i++) {
-            if (all_disks[i] == document.getElementById("DiskType").value) {
-                year_month.push(all_year_month[i]);
-                failures.push(all_failures[i]);
-            }
-        }
-        var myLineChart = new Chart(document.getElementById("line-chart"), {
+        // LINE CHART
+        new Chart(document.getElementById("line-chart"), {
             type: 'line',
             data: {
-                labels: year_month,
-                datasets: [{
-                    data: failures,
-                    borderColor: "#3e95cd"
-                }
+                labels: [{% for ym in year_month|unique %} "{{ ym }}", {% endfor %}],
+                datasets: [
+                    {% for disk in disks|unique %}
+                        {
+                            data: [{% for i in range(disks|length) %}{% if disk == disks[i] %} {{ 100*(failures[i]/(totals[i]+failures[i]))|round(6) }}{% if disk == disks[i+1] %},{% endif %}{% endif %}{% endfor %}],
+                            label: "{{ disk }}",
+                            borderColor: '#'+(Math.random()*0xFFFFFF<<0).toString(16),
+                            fill: false
+                        }{% if disk != disks[disks|length - 1] %},{% endif %}
+                    {% endfor %}
                 ]
             },
             options: {
-                responsive: false,
-                legend: {
-                    display: false
-                },
                 title: {
                 display: true,
-                text: "\"" + document.getElementById("DiskType").value + "\"" + " Failures Per Month",
+                text: 'Percent Failure For Each Hard Disk Model Per Month',
                 }
             }
-        });
-        
-        function updateLineChartType() {
-            myLineChart.destroy();
-            year_month = [];
-            failures = [];
-            for (var i = 0; i < all_disks.length; i++) {
-                if (all_disks[i] == document.getElementById("DiskType").value) {
-                    year_month.push(all_year_month[i]);
-                    failures.push(all_failures[i]);
-                }
-            }
-            myLineChart = new Chart(document.getElementById("line-chart"), {
-            type: 'line',
-            data: {
-                labels: year_month,
-                datasets: [{ 
-                    data: failures,
-                    borderColor: "#3e95cd"
-                }
-                ]
-            },
-            options: {
-                responsive: false,
-                legend: {
-                    display: false
-                },
-                title: {
-                display: true,
-                text: "\"" + document.getElementById("DiskType").value + "\"" + " Failures Per Month",
-                }
-            }
-        });
-        };
+            });
 
-
-        ///// PIE CHART /////
+        //PIE CHART
         var all_disks_pie = {{ disks_pie|safe }};
         var all_disk_count_pie = {{ disk_count_pie|safe }};
         var all_failure_count_pie = {{ failure_count_pie|safe }};
@@ -102,16 +61,14 @@
             data: {
             labels: ["Total Tests", "Failures"],
             datasets: [{
-                label: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\"",
                 backgroundColor: ["#3e95cd", "#8e5ea2"],
                 data: [disk_count_pie[0], failure_count_pie[0]]
             }]
             },
             options: {
-                responsive: false,
                 title: {
                     display: true,
-                    text: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\" - Percent Failures %" + (failure_count_pie[0] / disk_count_pie[0]).toFixed(2)
+                    text: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\" - Percent Failure %" + 100*(failure_count_pie[0]/(failure_count_pie[0]+disk_count_pie[0])).toFixed(2)
                 }
             }
         });
@@ -131,13 +88,11 @@
             data: {
             labels: ["Total Tests", "Failures"],
             datasets: [{
-                label: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\"",
                 backgroundColor: ["#3e95cd", "#8e5ea2"],
                 data: [disk_count_pie[0], failure_count_pie[0]]
             }]
             },
             options: {
-                responsive: false,
                 title: {
                     display: true,
                     text: "Total Tests VS Failures for \"" + document.getElementById("DiskType").value + "\" - Percent Failures %" + (failure_count_pie[0] / disk_count_pie[0]).toFixed(2)

@@ -147,29 +147,34 @@ def delete_hard_disk(serial_number):
 @app.route("/harddiskanalysis", methods = ['GET', 'POST'])
 @login_required
 def hard_disk_analysis():
-    results = db.engine.execute(text("""
+    results_line = db.engine.execute(text("""
         SELECT
-            UD.DiskModellD,
-            DATE_FORMAT(DDS.Date, '%Y %m') AS YearMonth,
-            SUM(DDS.FailureCount)
-        FROM ss117_harddrive.userdisk UD
-        JOIN ss117_harddrive.diskdailystats DDS ON DDS.DiskModelID = UD.DiskModellD
-        WHERE UD.UserID = """+str(current_user.id)+"""
-        GROUP BY UD.DiskModellD, DATE_FORMAT(DDS.Date, '%Y %m')
-        ORDER BY UD.DiskModellD, YearMonth;
+            DiskModelID,
+            DATE_FORMAT(Date, '%Y %m') AS YearMonth,
+            SUM(TotalDiskCount),
+            SUM(FailureCount)
+        FROM ss117_harddrive.diskdailystats
+        WHERE DiskModelID IN (
+            SELECT DiskModelID
+            FROM ss117_harddrive.diskdailystats
+            GROUP BY DiskModelID
+            HAVING COUNT(DISTINCT DATE_FORMAT(Date, '%Y %m')) = 12
+        )
+        GROUP BY DiskModelID, DATE_FORMAT(Date, '%Y %m')
+        ORDER BY DiskModelID, YearMonth;
     """))
-    results = [row for row in results]
-    disks = [str(row[0]) for row in results]
-    year_month = [str(row[1]) for row in results]
-    failures = [str(row[2]) for row in results]
+    results_line = [row for row in results_line]
+    disks = [str(row[0]) for row in results_line]
+    year_month = [str(row[1]) for row in results_line]
+    totals = [row[2] for row in results_line]
+    failures = [row[3] for row in results_line]
     results_pie = db.engine.execute(text("""
         SELECT
-            UD.DiskModellD,
-            DM.TotalDiskCount,
-            DM.FailureCount
-        FROM ss117_harddrive.userdisk UD
-        JOIN ss117_harddrive.diskmodel DM ON DM.DiskModelID = UD.DiskModellD
-        WHERE UD.UserID = """+str(current_user.id)+""";
+            DiskModelID,
+            SUM(TotalDiskCount),
+            SUM(FailureCount)
+        FROM ss117_harddrive.diskmodel
+        GROUP BY DiskModelID;
     """))
     results_pie = [row for row in results_pie]
     disks_pie = [str(row[0]) for row in results_pie]
@@ -178,6 +183,7 @@ def hard_disk_analysis():
     return render_template('hard_disk_analysis.html', title = 'Hard Disk Analysis',
         disks = disks,
         year_month = year_month,
+        totals = totals,
         failures = failures,
         disks_pie = disks_pie,
         disk_count_pie = disk_count_pie,

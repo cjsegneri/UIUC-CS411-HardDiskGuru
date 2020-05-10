@@ -42,7 +42,6 @@
             data: {
             labels: [{% for row in manufacturer_counts %} "{{ row[0] }}", {% endfor %}],
             datasets: [{
-                //label: "Population (millions)",
                 backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
                 data: [{% for row in manufacturer_counts %} {{ row[1] }}, {% endfor %}]
             }]
