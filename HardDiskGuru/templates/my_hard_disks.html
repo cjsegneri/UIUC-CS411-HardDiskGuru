@@ -37,7 +37,9 @@
                         {% endif %}
                     </td>
                     <td>{{ "${:,.2f}".format(results[i][8]) }}</td>
-                    <td><a class="btn btn-outline-warning" href="{{ results[i][9] }}" role="button">Amazon</a></td>
+                    {% if results[i][7] <= 0.59 %}
+                        <td><a class="btn btn-outline-warning" href="{{ results[i][9] }}" role="button">Replacement</a></td>
+                    {% endif %}
                     <td><a class="btn btn-outline-secondary" href="{{ url_for('update_hard_disk', serial_number=results[i][1]) }}" role="button">Update</a></td>
                     <td>
                         <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>
