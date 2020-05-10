@@ -1,0 +1,102 @@
+
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Shopping Assistant</h1><br />
+    <p>Here we can recommend a collection of hard disks based on the required capacity and number of the disk slots you enter below.</p>
+
+    <br /><hr><br />
+    <body>
+        <form name="tablegen">
+            <label>Terabyte Capacity: <input type="text" name="capacity" id="capacity" value="40"/></label>   
+            <label>Disk Slots: <input type="text" name="slots" id="slots" value="4"/></label><br/><br />
+            <input name="generate" type="button" value="Generate Recommendations" onclick="GetConfigOptions();"/>
+        </form>
+    
+        <br /><hr><br />
+        <div id = "wrapper"></div>
+    </body>
+
+    <script>
+
+        var Manufacturers = [{% for m in manufacturer %}"{{ m }}",{% endfor %}];
+        var Models = [{% for m in disk_model %}"{{ m }}",{% endfor %}];
+        var Capacities = [{% for m in capacity %}"{{ m }}",{% endfor %}];
+        var ReliabilityScores = [{% for m in reliability_score %}"{{ m }}",{% endfor %}];
+        var Prices = [{% for m in price %}"{{ m }}",{% endfor %}];
+        var URLs = [{% for m in url %}"{{ m }}",{% endfor %}];
+
+        // get unique capacity values for permutations
+        var UniqueCapacities = Capacities.filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => Number(b) - Number(a));
+
+        function GetConfigOptions() {
+            var RequiredCapacity = document.getElementById('capacity').value;
+            var DiskSlots = document.getElementById('slots').value;
+
+            // let's produce permutations
+            var Permutations = [];
+            UniqueCapacities.forEach(function(c) {if (Math.ceil(RequiredCapacity / c) <= DiskSlots) Permutations.push([c, Math.ceil(RequiredCapacity / c)])});
+
+            // look up best model for each permutation, compute total config score
+            var ConfigOptions = [];
+            Permutations.forEach(function(p){
+                var capacity = p[0];
+                var count = p[1];
+                // get models of this capacity
+                var RelevantModels = Models.filter((v, i, a) => Capacities[i] == capacity);
+                // sort relevant models by reliability score, pick best one
+                var BestModel = RelevantModels.sort((a, b) => Number(ReliabilityScores[Models.indexOf(b)]) - Number(ReliabilityScores[Models.indexOf(a)]))[0];
+                var BestModelIndex = Models.indexOf(BestModel);
+                // create a config option with all the relevant fields
+                var Option = {
+                    "Manufacturer": Manufacturers[BestModelIndex],
+                    "Model": BestModel,
+                    "Capacity": capacity,
+                    "DiskCount": count,
+                    "ModelScore": ReliabilityScores[BestModelIndex],
+                    "ModelPrice": Prices[BestModelIndex],
+                    "ConfigurationScore": Math.pow(Number(ReliabilityScores[BestModelIndex]), count),
+                    "ConfigurationPrice": Prices[BestModelIndex] * count,
+                    "ModelURL": URLs[BestModelIndex]
+                };
+                ConfigOptions.push(Option);
+            });
+            // sort config options by price
+            var SortedOptions = ConfigOptions.sort((a,b) => a.ConfigurationPrice - b.ConfigurationPrice);
+
+            // create the table
+
+            var theader = `<table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Capacity</th>
+                    <th scope="col">Configuration Price</th>
+                    <th scope="col">Configuration Score</th>
+                    <th scope="col">Disk Count</th>
+                    <th scope="col">Manufacturer</th>
+                    <th scope="col">Model</th>
+                    <th scope="col">Model Price</th>
+                    <th scope="col">Model Score</th>
+                </tr>
+            </thead><tbody>`;
+            var tbody = '';
+            var tfooter = '</tbody></table>';
+
+            for (var i=0; i<SortedOptions.length; i++) {
+                tbody += '<tr>';
+                tbody += '<td>' + SortedOptions[i]['Capacity'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['ConfigurationPrice'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['ConfigurationScore'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['DiskCount'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['Manufacturer'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['Model'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['ModelPrice'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['ModelScore'] + '</td>';
+                tbody += '<td>' + '<a class="btn btn-outline-warning" href="' + SortedOptions[i]['ModelScore']["URL"] + '" role="button">Shop</a></td>' + '</td>';
+                tbody += '</tr>';
+            }
+
+            document.getElementById("wrapper").innerHTML = theader + tbody + tfooter;
+        };
+    </script>
+
+{% endblock content %}

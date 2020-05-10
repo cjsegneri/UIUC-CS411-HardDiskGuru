@@ -107,7 +107,7 @@ def my_hard_disks():
             DM.CapacityBytes,
             DM.TotalDiskCount,
             DM.FailureCount,
-            DM.ReliabilityScore,
+            (DM.ReliabilityScore) - (DM.slope * (-DATEDIFF(UD.ManufactureDate, CURDATE()))) AS ReliabilityScore,
             DM.Price,
             DM.URL
         FROM ss117_harddrive.userdisk UD
@@ -160,6 +160,10 @@ def hard_disk_analysis():
             GROUP BY DiskModelID
             HAVING COUNT(DISTINCT DATE_FORMAT(Date, '%Y %m')) = 12
         )
+        AND DiskModelID IN (
+            SELECT DiskModelID
+            FROM ss117_harddrive.diskmodel
+        )
         GROUP BY DiskModelID, DATE_FORMAT(Date, '%Y %m')
         ORDER BY DiskModelID, YearMonth;
     """))
@@ -188,3 +192,32 @@ def hard_disk_analysis():
         disks_pie = disks_pie,
         disk_count_pie = disk_count_pie,
         failure_count_pie = failure_count_pie)
+
+
+@app.route("/shoppingassistant", methods = ['GET', 'POST'])
+@login_required
+def recommendations():
+    results = db.engine.execute(text("""
+        SELECT
+            ManufacturerID,
+            DiskModelID,
+            FLOOR(CapacityBytes / 1000000000000) AS CapacityBytes,
+            ReliabilityScore,
+            Price,
+            URL
+        FROM ss117_harddrive.diskmodel;
+    """))
+    results = [row for row in results]
+    manufacturer = [str(row[0]) for row in results]
+    disk_model = [str(row[1]) for row in results]
+    capacity = [row[2] for row in results]
+    reliability_score = [str(row[3]) for row in results]
+    price = [str(row[4]) for row in results]
+    url = [str(row[5]) for row in results]
+    return render_template('recommendations.html', title = 'Recommendations',
+        manufacturer = manufacturer,
+        disk_model = disk_model,
+        capacity = capacity,
+        reliability_score = reliability_score,
+        price = price,
+        url = url)

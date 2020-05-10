@@ -39,7 +39,8 @@
                 {% if current_user.is_authenticated %}
                   <a class="nav-item nav-link" href="{{ url_for('enter_hard_disks') }}">Enter Hard Disks</a>
                   <a class="nav-item nav-link" href="{{ url_for('my_hard_disks') }}">My Hard Disks</a>
-                  <a class="nav-item nav-link" href="{{ url_for('hard_disk_analysis') }}">Hard Disk Analysis</a>
+                  <a class="nav-item nav-link" href="{{ url_for('hard_disk_analysis') }}">Hard Disk Analytics</a>
+                  <a class="nav-item nav-link" href="{{ url_for('recommendations') }}">Shopping Assistant</a>
                 {% endif %}
               </div>
                 <!-- Navbar Right Side -->

@@ -2,6 +2,9 @@
 {% block content %}
 
     <h1>My Hard Disks</h1><br>
+    <p>Here you can see the hard disks you've entered into the application. The reliability score we calculate is a value between zero and one. The closer it is to one, the more reliable it is.</p>
+
+    <br /><hr><br />
     <table class="table table-bordered">
         <thead>
         <tr>
@@ -24,8 +27,16 @@
                     <td>{{ results[i][0] }}</td>
                     <td>{{ results[i][2] }}</td>
                     <td>{{ results[i][4] }}</td>
-                    <td>{{ results[i][7] }}</td>
-                    <td>{{ results[i][8] }}</td>
+                    <td>
+                        {% if results[i][7] <= 0.59 %}
+                            <p class="text-danger"><b>{{ results[i][7] }}</b></p>
+                        {% elif results[i][7] <= 0.79 %}
+                            <p class="text-warning"><b>{{ results[i][7] }}</b></p>
+                        {% else %}
+                            <p class="text-success"><b>{{ results[i][7] }}</b></p>
+                        {% endif %}
+                    </td>
+                    <td>{{ "${:,.2f}".format(results[i][8]) }}</td>
                     <td><a class="btn btn-outline-warning" href="{{ results[i][9] }}" role="button">Amazon</a></td>
                     <td><a class="btn btn-outline-secondary" href="{{ url_for('update_hard_disk', serial_number=results[i][1]) }}" role="button">Update</a></td>
                     <td>
