@@ -1,0 +1,57 @@
+
+
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Welcome to Hard Disk Guru!</h1><br>
+    <p>Hard Disk Guru helps users maintain and expand their storage pool.</p>
+    <p>We make failure predictions about the user's existing hard disks, reccomending preventive replacement. We can also recommend the most reliable models available on the market.</p>
+
+    <br /><hr><br />
+    <p>We have a large data set that allows us to develop reliability scores for individual disk models. Below is a chart that shows the top five models we've scored the highest, and the top five models we've scored the lowest.</p>
+    <canvas id="chart-1" width="600" height="400"></canvas>
+
+    <br /><hr><br />
+    <p>The pie chart below shows the total amount of unique hard disks used in testing for each manufacturer in our data set.</p>
+    <canvas id="chart-2" width="600" height="400"></canvas>
+
+    <script>
+        // BAR CHART
+        var myChart1 = new Chart(document.getElementById("chart-1"), {
+            type: 'bar',
+            data: {
+            labels: [{% for row in results %} "{{ row[0] }}", {% endfor %}],
+            datasets: [
+                {
+                backgroundColor: ["#006600", "#006600", "#006600", "#006600", "#006600", "#cc0000", "#cc0000", "#cc0000", "#cc0000", "#cc0000"],
+                data: [{% for row in results %} {{ row[1]*100 }}, {% endfor %}]
+                }
+            ]
+            },
+            options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: 'Top 5 and Bottom 5 Models By Relaibility Score'
+            }
+            }
+        });
+
+        // PIE CHART
+        var myChart2 = new Chart(document.getElementById("chart-2"), {
+            type: 'pie',
+            data: {
+            labels: [{% for row in manufacturer_counts %} "{{ row[0] }}", {% endfor %}],
+            datasets: [{
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                data: [{% for row in manufacturer_counts %} {{ row[1] }}, {% endfor %}]
+            }]
+            },
+            options: {
+            title: {
+                display: true,
+                text: 'Number of Hard Disks per Manufacturer'
+            }
+            }
+        });
+    </script>
+{% endblock content %}

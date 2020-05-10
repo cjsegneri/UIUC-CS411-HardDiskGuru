@@ -2,3 +2,5 @@ Flask
 flask-wtf
 flask-sqlalchemy
 pymysql
+flask-bcrypt
+flask-login
