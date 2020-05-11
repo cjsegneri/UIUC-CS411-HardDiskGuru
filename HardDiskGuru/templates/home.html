@@ -19,7 +19,7 @@ top five most reliable models, as well as bottom five least reliable.</p>
     <script>
         // BAR CHART
         var myChart1 = new Chart(document.getElementById("chart-1"), {
-            type: 'bar',
+            type: 'horizontalBar',
             data: {
             labels: [{% for row in results %} "{{ row[0] }}", {% endfor %}],
             datasets: [
@@ -33,7 +33,7 @@ top five most reliable models, as well as bottom five least reliable.</p>
             legend: { display: false },
             title: {
                 display: true,
-                text: 'Top 5 and Bottom 5 Models By Relaibility Score'
+                text: 'Top 5 and Bottom 5 Models By Reliability Score'
             }
             }
         });

@@ -6,7 +6,8 @@
     <p>View analytics on the hard disk models stored in HardDiskGuru's data set.</p>
 
     <br /><hr><br />
-    <p>Below are the failure rates of the disk models plotted over each month of testing. Select a specific hard disk model to filter the graph.</p>
+    <p>Below are the failure rates of individual disk models plotted over time. Select a specific hard disk model to filter the 
+graph. This analysis is useful to determine whether a particular model has a high number of "lemons" (defective drives) during certain periods.</p>
     <canvas id="line-chart" width="1000" height="600"></canvas>
 
     <br /><hr><br />
@@ -39,7 +40,11 @@
                 title: {
                 display: true,
                 text: 'Percent Failure For Each Hard Disk Model Per Month',
-                }
+                },
+		legend: {
+			position: 'left',
+			align: 'left'
+}
             }
             });
 
