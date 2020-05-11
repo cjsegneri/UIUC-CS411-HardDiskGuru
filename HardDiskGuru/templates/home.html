@@ -4,9 +4,13 @@
 {% block content %}
     <h1>Welcome to Hard Disk Guru!</h1><br>
     <p>Hard Disk Guru helps users maintain and expand their storage pool.</p>
-    <p>This application makes failure predictions about the user's existing hard disks, recommending preventive replacement. "Shopping Assistant" 
+    <p>This application makes failure predictions about the user's existing hard disks, recommending preventive replacement. <a href="{{ 
+url_for('recommendations') }}">"Shopping Assistant"</a> 
 functionality helps users expand their storage pool by suggesting reliable, economical configurations.</p>
-
+	<p>General analytical insights are available in <a href="{{ url_for('hard_disk_analysis') }}">"Hard Disk Analytics"</a> section. To receive 
+personalized analysis of your own storage 
+pool, please 
+<a href="{{ url_for('register') }}">create an account</a> and provide information about the disks you currently own.
     <br /><hr><br />
     <p>Hard Disk Guru leverages a large data set to develop reliability scores for individual disk models. Below is a chart that shows the 
 top five most reliable models, as well as bottom five least reliable.</p>
