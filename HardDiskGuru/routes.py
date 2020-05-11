@@ -107,7 +107,7 @@ def my_hard_disks():
             DM.CapacityBytes,
             DM.TotalDiskCount,
             DM.FailureCount,
-            (DM.ReliabilityScore) - (DM.slope * (-DATEDIFF(UD.ManufactureDate, CURDATE()))) AS ReliabilityScore,
+            round((DM.ReliabilityScore) - (DM.slope * (-DATEDIFF(UD.ManufactureDate, CURDATE()))), 4) AS ReliabilityScore,
             DM.Price,
             DM.URL
         FROM ss117_harddrive.UserDisk UD
