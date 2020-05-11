@@ -4,10 +4,17 @@
 {% block content %}
     <h1>Welcome to Hard Disk Guru!</h1><br>
     <p>Hard Disk Guru helps users maintain and expand their storage pool.</p>
-    <p>We make failure predictions about the user's existing hard disks, reccomending preventive replacement. We can also recommend the most reliable models available on the market.</p>
-
+    <p>This application makes failure predictions about the user's existing hard disks, recommending preventive replacement. <a href="{{ 
+url_for('recommendations') }}">"Shopping Assistant"</a> 
+functionality helps users expand their storage pool by suggesting reliable, economical configurations.</p>
+	<p>General analytical insights are available in <a href="{{ url_for('hard_disk_analysis') }}">"Hard Disk Analytics"</a> section. To receive 
+personalized analysis of your own storage 
+pool, please {% if current_user.is_authenticated %}<a href="{{ url_for('enter_hard_disks') }}">provide information</a>{% else %}<a href="{{ 
+url_for('login') }}">log in</a> or 
+<a href="{{ url_for('register') }}">create an account</a> and provide information{% endif %} about the disks you currently own.
     <br /><hr><br />
-    <p>We have a large data set that allows us to develop reliability scores for individual disk models. Below is a chart that shows the top five models we've scored the highest, and the top five models we've scored the lowest.</p>
+    <p>Hard Disk Guru leverages a large data set to develop reliability scores for individual disk models. Below is a chart that shows the 
+top five most reliable models, as well as bottom five least reliable.</p>
     <canvas id="chart-1" width="600" height="400"></canvas>
 
     <br /><hr><br />
@@ -17,7 +24,7 @@
     <script>
         // BAR CHART
         var myChart1 = new Chart(document.getElementById("chart-1"), {
-            type: 'bar',
+            type: 'horizontalBar',
             data: {
             labels: [{% for row in results %} "{{ row[0] }}", {% endfor %}],
             datasets: [
@@ -31,7 +38,7 @@
             legend: { display: false },
             title: {
                 display: true,
-                text: 'Top 5 and Bottom 5 Models By Relaibility Score'
+                text: 'Top 5 and Bottom 5 Models By Reliability Score'
             }
             }
         });

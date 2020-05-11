@@ -2,7 +2,12 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>Shopping Assistant</h1><br />
-    <p>Here we can recommend a collection of hard disks based on the required capacity and number of the disk slots you enter below.</p>
+    <p>TIme to expand your storage pool? We're here to help. Enter the total amount of storage (in terabytes) and the number of HDD slots available in your 
+storage server. We will recommend several reliable configurations that fit those parameters, ranked by total cost of the set. Other factors worth 
+considering are the aggregate reliability of the configuration (the more disks, the higher the likelihood of failure) and price per terabyte. </p><p>We 
+will 
+also provide 
+convenient shopping links to purchase selected disks.</p>
 
     <br /><hr><br />
     <body>
@@ -68,15 +73,16 @@
             var theader = `<table class="table table-bordered">
             <thead>
                 <tr>
-                    <th scope="col">Capacity (TB)</th>
-                    <th scope="col">Disk Count</th>
-                    <th scope="col">Total Capacity (TB)</th>
-                    <th scope="col">Configuration Price</th>
-                    <th scope="col">Configuration Score</th>
                     <th scope="col">Manufacturer</th>
                     <th scope="col">Model</th>
                     <th scope="col">Model Price</th>
-                    <th scope="col">Model Score</th>
+                    <th scope="col">Model Reliability Score</th>
+                    <th scope="col">Disk Capacity (TB)</th>
+                    <th scope="col">Disk Count</th>
+                    <th scope="col">Total Capacity (TB)</th>
+                    <th scope="col">Total Cost</th>
+                    <th scope="col">Cost per Terabyte</th>
+                    <th scope="col">Configuration Reliability Score</th>
                 </tr>
             </thead><tbody>`;
             var tbody = '';
@@ -84,15 +90,17 @@
 
             for (var i=0; i<SortedOptions.length; i++) {
                 tbody += '<tr>';
-                tbody += '<td>' + SortedOptions[i]['Capacity'] + '</td>';
-                tbody += '<td>' + SortedOptions[i]['DiskCount'] + '</td>';
-                tbody += '<td>' + SortedOptions[i]['Capacity'] * SortedOptions[i]["DiskCount"] + '</td>';
-                tbody += '<td>$' + SortedOptions[i]['ConfigurationPrice'] + '</td>';
-                tbody += '<td>' + SortedOptions[i]['ConfigurationScore'].toFixed(4) + '</td>';
                 tbody += '<td>' + SortedOptions[i]['Manufacturer'] + '</td>';
                 tbody += '<td>' + SortedOptions[i]['Model'] + '</td>';
                 tbody += '<td>$' + SortedOptions[i]['ModelPrice'] + '</td>';
                 tbody += '<td>' + SortedOptions[i]['ModelScore'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['Capacity'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['DiskCount'] + '</td>';
+                tbody += '<td>' + SortedOptions[i]['Capacity'] * SortedOptions[i]["DiskCount"] + '</td>';
+                tbody += '<td>$' + SortedOptions[i]['ConfigurationPrice'] + '</td>';
+                tbody += '<td>$' + (SortedOptions[i]['ConfigurationPrice'] / (SortedOptions[i]['Capacity'] * SortedOptions[i]["DiskCount"])).toFixed(2) + 
+'</td>';
+                tbody += '<td>' + SortedOptions[i]['ConfigurationScore'].toFixed(4) + '</td>';
                 tbody += '<td>' + '<a class="btn btn-outline-warning" href="' + SortedOptions[i]["ModelURL"] + '" role="button">Shop</a></td>' + '</td>';
                 tbody += '</tr>';
             }
